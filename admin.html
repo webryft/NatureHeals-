@@ -9,8 +9,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
-:root{
-  --bg:#f6fff6; --card:#fff; --accent:#16a34a; --muted:#163925;
+:root{--bg:#f6fff6; --card:#fff; --accent:#16a34a; --muted:#163925;
 }
 body{margin:0;font-family:'Poppins',sans-serif;background:var(--bg);color:var(--muted);padding:22px;}
 .hidden{display:none}
@@ -118,7 +117,7 @@ const clearForm = document.getElementById('clearForm');
 
 togglePass.addEventListener("click",()=>{
   adminPass.type = adminPass.type === "password" ? "text" : "password";
-  togglePass.textContent = adminPass.type === "password" ? "👁" : "🙈";
+  togglePass.textContent = adminPass.type === "password" ? "👁" : "Hide";
 });
 
 loginBtn.addEventListener("click",()=>{
