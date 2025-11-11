@@ -303,10 +303,9 @@ function showPopup(title, text, icon="info"){
 
 /* ========== Load products in realtime from Firestore ========== */
 function renderProducts(snapshotDocs){
-  // snapshotDocs: array of {id, data}
   productGrid.innerHTML = '';
   snapshotDocs.forEach(d=>{
-    const p = d.data;
+    const p = d.data; // d.data is already an object from Firestore
     const card = document.createElement('div');
     card.className = 'card';
     card.innerHTML = `
@@ -315,13 +314,19 @@ function renderProducts(snapshotDocs){
       <div class="priceRow">
         <div style="font-weight:800">₦${Number(p.price).toFixed(2)}</div>
         <div style="display:flex;gap:8px">
-          <button class="btn add" data-id="${d.id}" data-name="${p.name}">Add to cart</button>
+          <button class="btn add" data-id="${d.id}" data-name="${p.name}" data-price="${p.price}">Add to cart</button>
           <button class="btn buy" data-id="${d.id}" data-name="${p.name}">Buy now</button>
         </div>
       </div>`;
     productGrid.appendChild(card);
   });
+
+  // If no items at all
+  if (snapshotDocs.length === 0) {
+    productGrid.innerHTML = '<div style="text-align:center;color:#666;padding:20px;">No products available yet 🌱</div>';
+  }
 }
+
 
 /* subscribe to products collection */
 const productsSnapshot = [];
