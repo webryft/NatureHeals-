@@ -119,6 +119,127 @@ document.getElementById('addProd').addEventListener('click', async ()=>{
   const file = document.getElementById('prodImage').files[0];
   if(!name || !file){ popup("Missing info","Please provide name and image","warning"); return; }
   const path = `products/${Date.now()}_${file.name}`;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Nature Heals — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+  body{margin:0;font-family:'Poppins',sans-serif;background:#f3f7f6;color:#10221b;padding:18px}
+  .app{max-width:1100px;margin:0 auto}
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  h1{margin:0}
+  .grid{display:grid;grid-template-columns:320px 1fr;gap:18px}
+  .card{background:white;padding:14px;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.06)}
+  label{display:block;margin-top:8px;font-weight:700}
+  input[type="text"], input[type="number"]{width:100%;padding:8px;border-radius:8px;border:1px solid #e6ece8}
+  button{padding:8px 12px;border-radius:8px;border:0;background:#2f855a;color:white;cursor:pointer;font-weight:700}
+  button.ghost{background:#fff;color:#2f855a;border:1px solid #e6ece8}
+  .list{margin-top:12px;max-height:560px;overflow:auto}
+  .item{display:flex;align-items:center;gap:12px;padding:10px;border-bottom:1px solid #eef3f1}
+  img.thumb{width:72px;height:72px;object-fit:cover;border-radius:8px}
+  .danger{background:#ef4444}
+</style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Nature Heals — Admin</h1>
+      <div>
+        <button id="refreshBtn" class="ghost">Refresh</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Add Product</h3>
+        <label>Picture name</label>
+        <input id="prodName" type="text" placeholder="Misty Forest">
+        <label>Price (NGN)</label>
+        <input id="prodPrice" type="number" placeholder="1200">
+        <label>Picture file</label>
+        <input id="prodImage" type="file" accept="image/*">
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button id="addProd">Add product</button>
+          <button id="uploadCover" class="ghost">(Cover is local asset)</button>
+        </div>
+        <p style="margin-top:10px;color:#666;font-size:13px">Note: cover.gif and audio.mp3 are local files in the <strong>assets/</strong> folder; upload products here to add them globally.</p>
+      </div>
+
+      <div class="card">
+        <h3>Products (live)</h3>
+        <div id="prodList" class="list">Loading...</div>
+      </div>
+    </div>
+
+    <div style="height:18px"></div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Upload audio (optional)</h3>
+        <input id="audioFile" type="file" accept="audio/*">
+        <div style="margin-top:8px">
+          <button id="uploadAudio">Upload to Storage (optional)</button>
+        </div>
+        <p style="margin-top:10px;color:#666">Note: index.html uses local asset <strong>assets/audio.mp3</strong>. If you prefer to host audio in Firebase, use this tool and change index to load from production storage URL.</p>
+      </div>
+
+      <div class="card">
+        <h3>Users (local clients only)</h3>
+        <div id="usersList" class="list">Users are stored on-device; signups are local by default.</div>
+      </div>
+    </div>
+  </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-storage.js";
+
+/* Firebase config (corrected storageBucket) */
+const firebaseConfig = {
+  apiKey: "AIzaSyDhnK7DGb9guxUSjkWWH6s7jT7-NU0oBdM",
+  authDomain: "nature-heals-4f4db.firebaseapp.com",
+  projectId: "nature-heals-4f4db",
+  storageBucket: "nature-heals-4f4db.appspot.com",
+  messagingSenderId: "945050051317",
+  appId: "1:945050051317:web:8da40b136b6e6b794c9bbc",
+  measurementId: "G-FYJ6SBDQN7"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+function toast(msg, icon='success'){ Swal.fire({toast:true,position:'top-end',title:msg,icon,showConfirmButton:false,timer:2200,timerProgressBar:true}); }
+function popup(title, text, icon='info'){ Swal.fire({title,text,icon,confirmButtonColor:'#16a34a'}); }
+
+/* Load products realtime */
+const prodList = document.getElementById('prodList');
+async function loadProducts(){
+  prodList.innerHTML = 'Loading...';
+  onSnapshot(collection(db,'products'), snap => {
+    prodList.innerHTML = '';
+    if(snap.empty) prodList.innerHTML = '<div style="color:#666">No products yet.</div>';
+    snap.forEach(docSnap => {
+      const p = docSnap.data();
+      const div = document.createElement('div'); div.className='item';
+      div.innerHTML = `<img class="thumb" src="${p.imageURL}"><div style="flex:1"><div style="font-weight:800">${p.name}</div><div style="color:#666">₦${Number(p.price).toFixed(2)}</div></div><div><button data-id="${docSnap.id}" class="removeBtn danger">Remove</button></div>`;
+      prodList.appendChild(div);
+    });
+  }, err => { console.error(err); popup("Error","Failed to load products","error"); });
+}
+
+/* Add product */
+document.getElementById('addProd').addEventListener('click', async ()=>{
+  const name = document.getElementById('prodName').value.trim();
+  const price = Number(document.getElementById('prodPrice').value) || 0;
+  const file = document.getElementById('prodImage').files[0];
+  if(!name || !file){ popup("Missing info","Please provide name and image","warning"); return; }
+  const path = `products/${Date.now()}_${file.name}`;
   const storageRef = ref(storage, path);
   try{
     toast("Uploading image...");
@@ -163,3 +284,4 @@ loadProducts(); loadUsers();
 </script>
 </body>
 </html>
+
