@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Nature Heals — Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;800&display=swap" rel="stylesheet">
+
+<!-- ✅ SweetAlert2 for professional popups -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <style>
   body{margin:0;font-family:'Poppins',sans-serif;background:#f3f7f6;color:#10221b;padding:18px}
   .app{max-width:1100px;margin:0 auto}
@@ -73,17 +77,16 @@
   </div>
 
 <script type="module">
-/* Admin uses Firebase to add/remove products (images uploaded to Storage). */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-storage.js";
 
-/* Firebase config — same as index; paste your config here (it is already in index) */
+/* ✅ Fixed Firebase config */
 const firebaseConfig = {
   apiKey: "AIzaSyDhnK7DGb9guxUSjkWWH6s7jT7-NU0oBdM",
   authDomain: "nature-heals-4f4db.firebaseapp.com",
   projectId: "nature-heals-4f4db",
-  storageBucket: "nature-heals-4f4db.firebasestorage.app",
+  storageBucket: "nature-heals-4f4db.appspot.com", /* ✅ Corrected here */
   messagingSenderId: "945050051317",
   appId: "1:945050051317:web:8da40b136b6e6b794c9bbc",
   measurementId: "G-FYJ6SBDQN7"
@@ -93,15 +96,18 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-/* DOM */
-const prodList = document.getElementById('prodList');
-const usersList = document.getElementById('usersList');
-const addProdBtn = document.getElementById('addProd');
-const refreshBtn = document.getElementById('refreshBtn');
+/* SweetAlert helpers */
+function popup(title, text, icon="info") {
+  Swal.fire({ title, text, icon, confirmButtonColor:"#16a34a" });
+}
+function toast(msg, icon="success") {
+  Swal.fire({ toast:true, position:'top-end', icon, title:msg, showConfirmButton:false, timer:2200, timerProgressBar:true });
+}
 
+/* Load products */
 async function loadProducts(){
+  const prodList = document.getElementById('prodList');
   prodList.innerHTML = 'Loading...';
-  // realtime subscription
   onSnapshot(collection(db, 'products'), snap => {
     prodList.innerHTML = '';
     snap.forEach(docSnap => {
@@ -112,59 +118,75 @@ async function loadProducts(){
       prodList.appendChild(div);
     });
     if(snap.empty) prodList.innerHTML = '<div style="color:#666">No products yet.</div>';
-  }, err => { prodList.innerHTML = 'Error loading products'; console.error(err); });
+  }, err => { console.error(err); popup("Error","Failed to load products","error"); });
 }
 
-/* add product: upload image to storage then create doc */
-addProdBtn.addEventListener('click', async ()=>{
+/* Add product */
+document.getElementById('addProd').addEventListener('click', async ()=>{
   const name = document.getElementById('prodName').value.trim();
   const price = Number(document.getElementById('prodPrice').value) || 0;
   const file = document.getElementById('prodImage').files[0];
-  if(!name || !file){ alert('Provide name and image'); return; }
+  if(!name || !file){ popup("Missing info","Please provide name and image","warning"); return; }
   const path = `products/${Date.now()}_${file.name}`;
   const storageRef = ref(storage, path);
   try{
-    const up = await uploadBytes(storageRef, file);
+    toast("Uploading image...");
+    await uploadBytes(storageRef, file);
     const url = await getDownloadURL(storageRef);
     await addDoc(collection(db, 'products'), { name, price, imageURL: url, createdAt: Date.now() });
-    alert('Product added');
-    document.getElementById('prodName').value=''; document.getElementById('prodPrice').value=''; document.getElementById('prodImage').value='';
-  }catch(e){ console.error(e); alert('Upload failed'); }
-});
-
-/* remove product */
-prodList.addEventListener('click', async (e)=>{
-  if(e.target.classList.contains('removeBtn')){
-    if(!confirm('Remove this product?')) return;
-    const id = e.target.dataset.id;
-    try{
-      await deleteDoc(doc(db, 'products', id));
-      alert('Product removed');
-    }catch(err){ console.error(err); alert('Remove failed'); }
+    popup("Success","Product added successfully 🌿","success");
+    document.getElementById('prodName').value='';
+    document.getElementById('prodPrice').value='';
+    document.getElementById('prodImage').value='';
+  }catch(e){
+    console.error(e);
+    popup("Upload failed","Please check your Firebase rules or network","error");
   }
 });
 
-/* optional: upload audio to storage (admin tool) */
-document.getElementById('uploadAudio').addEventListener('click', async ()=>{
-  const file = document.getElementById('audioFile').files[0];
-  if(!file){ alert('Select audio file'); return; }
-  const path = `audio/${Date.now()}_${file.name}`;
-  const storageRef = ref(storage, path);
-  await uploadBytes(storageRef, file);
-  const url = await getDownloadURL(storageRef);
-  alert('Audio uploaded to Storage. If you want clients to use this audio, update index.html audio src to the storage URL.');
+/* Remove product */
+document.getElementById('prodList').addEventListener('click', async (e)=>{
+  if(e.target.classList.contains('removeBtn')){
+    const id = e.target.dataset.id;
+    const confirm = await Swal.fire({
+      title:"Remove this product?",
+      icon:"warning",
+      showCancelButton:true,
+      confirmButtonText:"Yes, remove",
+      cancelButtonText:"Cancel",
+      confirmButtonColor:"#ef4444"
+    });
+    if(confirm.isConfirmed){
+      try{
+        await deleteDoc(doc(db, 'products', id));
+        toast("Product removed 🌿");
+      }catch(err){ console.error(err); popup("Failed","Unable to remove product","error"); }
+    }
+  }
 });
 
-/* Users list: clients store users locally, so admin cannot automatically list them.
-   Here we just show a note and allow manual refresh. */
+/* Upload audio */
+document.getElementById('uploadAudio').addEventListener('click', async ()=>{
+  const file = document.getElementById('audioFile').files[0];
+  if(!file){ popup("Select file","Please choose an audio file first","warning"); return; }
+  const path = `audio/${Date.now()}_${file.name}`;
+  const storageRef = ref(storage, path);
+  try{
+    await uploadBytes(storageRef, file);
+    const url = await getDownloadURL(storageRef);
+    popup("Uploaded","Audio uploaded successfully. Use this URL in index.html:\n"+url,"success");
+  }catch(e){ console.error(e); popup("Upload failed","Could not upload audio","error"); }
+});
+
+/* Users note */
 function loadUsers(){
-  usersList.innerHTML = '<div style="color:#666">Users are stored locally on each client (localStorage). If you later store users in Firestore, they will appear here.</div>';
+  document.getElementById('usersList').innerHTML = '<div style="color:#666">Users are stored locally on each client (localStorage). If you later sync them to Firestore, they will appear here.</div>';
 }
 
-/* refresh button */
-refreshBtn.addEventListener('click', ()=>{ loadProducts(); loadUsers(); });
+/* Refresh button */
+document.getElementById('refreshBtn').addEventListener('click', ()=>{ loadProducts(); loadUsers(); });
 
-/* init */
+/* Init */
 loadProducts();
 loadUsers();
 </script>
