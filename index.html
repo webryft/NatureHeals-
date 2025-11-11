@@ -331,11 +331,10 @@ function renderProducts(snapshotDocs){
 /* subscribe to products collection */
 const productsSnapshot = [];
 onSnapshot(collection(db, 'products'), snap => {
-  console.log("Products snapshot received:", snap.size);
-  ...
-});
-  
-
+  const docs = [];
+  snap.forEach(docSnap => {
+    docs.push({id:docSnap.id, data: docSnap.data()});
+  });
   // store snapshot for search/filter
   productsSnapshot.length = 0; productsSnapshot.push(...docs);
   renderProducts(docs);
