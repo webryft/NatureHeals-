@@ -5,17 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Nature Heals — Gallery</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;800&display=swap" rel="stylesheet">
-
-<!-- ✅ SweetAlert2 for professional popups -->
+<!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <style>
-  :root{
-    --bg:#f6fff6;
-    --accent:#2f855a;
-    --muted:#234e3a;
-    --card:#ffffff;
-  }
+  :root{--bg:#f6fff6;--accent:#16a34a;--muted:#234e3a;--card:#ffffff}
   *{box-sizing:border-box}
   body{margin:0;font-family:'Poppins',sans-serif;background:var(--bg);color:var(--muted)}
   header{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#e6fff1;flex-wrap:wrap;position:sticky;top:0;z-index:50;border-bottom:1px solid rgba(0,0,0,0.04)}
@@ -29,91 +22,68 @@
   .profile-pic{width:36px;height:36px;border-radius:50%;object-fit:cover;cursor:pointer;border:2px solid rgba(0,0,0,0.04)}
   .cart{position:relative;cursor:pointer;font-weight:900;font-size:18px}
   .cartBadge{position:absolute;top:-6px;right:-10px;background:red;color:white;border-radius:10px;padding:2px 6px;font-size:12px}
-
-  /* Hero */
   .hero{margin:12px;border-radius:12px;overflow:hidden;border:1px solid rgba(0,0,0,0.04);position:relative;height:360px;background:#dff6e9}
   .hero img{width:100%;height:100%;object-fit:cover;display:block}
   .heroOverlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px;text-align:center;color:#fff;background:linear-gradient(180deg,rgba(0,0,0,0.15),rgba(0,0,0,0.25))}
   .heroOverlay h1{margin:0;font-size:26px;font-weight:900}
-  .heroOverlay p{margin-top:8px;font-size:14px}
-
-  /* Grid for A4 items (3 per row) */
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;padding:18px;max-width:1200px;margin:0 auto}
-  .card{background:var(--card);padding:10px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.05)}
-  .card img{width:100%;height:360px;object-fit:cover;border-radius:8px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;padding:18px;max-width:1300px;margin:0 auto}
+  .card{background:var(--card);padding:10px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.05);transition:transform .15s}
+  .card:hover{transform:translateY(-4px)}
+  .card img{width:100%;height:320px;object-fit:cover;border-radius:8px}
   .card h3{margin:8px 0 4px;font-size:16px;color:var(--muted)}
   .priceRow{display:flex;justify-content:space-between;align-items:center;gap:8px}
   .btn{padding:8px 12px;border-radius:10px;border:none;cursor:pointer;font-weight:800}
-  .buy{background:linear-gradient(90deg,#34d399,#10b981);color:white}
-  .add{background:#fff;border:1px solid rgba(0,0,0,0.06)}
-
-  /* Modals */
+  .product-buy{background:linear-gradient(90deg,#34d399,#10b981);color:white}
+  .product-add{background:#fff;border:1px solid rgba(0,0,0,0.06)}
   .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:999;align-items:center;justify-content:center;padding:20px}
   .modal{background:white;border-radius:12px;padding:18px;max-width:420px;width:100%}
-  .modal h3{margin:0 0 8px}
-
-  /* small screens */
-  @media (max-width:720px){
-    .hero{height:200px}
-    .card img{height:220px}
-    .searchWrap{max-width:200px}
-  }
-      
+  @media (max-width:720px){ .hero{height:200px} .card img{height:220px} .searchWrap{max-width:200px} }
 </style>
 </head>
 <body>
 
 <header>
   <div class="left">
-    <div id="menuBtn" class="menuBtn" title="Menu">☰</div>
+    <div id="menuBtn" class="menuBtn">☰</div>
     <div class="title">Nature Heals</div>
     <div class="searchWrap" title="Search pictures">
       <input id="searchInput" placeholder="Search product by name..." />
       <div style="margin-left:8px">🔍</div>
     </div>
   </div>
-
   <div class="menuRight">
-    <!-- country flag; replace the small list with full list if you want -->
     <div id="countryBtn" style="display:flex;align-items:center;gap:6px;cursor:pointer">
       <span id="selectedFlag" class="flag">🇳🇬</span>
       <span id="selectedCountry" style="font-size:13px">Nigeria</span>
     </div>
-
     <img id="profileImg" class="profile-pic" src="image22.jpg" alt="Profile" title="Profile">
     <div id="cartBtn" class="cart">🛒 <span class="cartBadge" id="cartCount">0</span></div>
   </div>
 </header>
 
-<!-- HERO using local asset -->
 <div class="hero">
   <img id="coverImg" src="cover.gif" alt="Cover">
   <div class="heroOverlay">
     <h1>Nature Heals</h1>
-    <p>Calming prints — bring nature into your home.</p>
+    <p style="margin-top:8px;color:#fff">Calming prints — bring nature into your home.</p>
   </div>
 </div>
 
-<!-- Products grid -->
-<div class="grid" id="productGrid">
-  <!-- items injected by JS -->
-</div>
+<div id="productGrid" class="grid"></div>
 
-<!-- Hidden audio (invisible to users) -->
 <audio id="bgAudio" autoplay loop>
   <source src="audio.mp3" type="audio/mpeg">
 </audio>
 
-<!-- Menu Modal -->
+<!-- MENU MODAL (Sign up / Sign in / About / Settings / Contact) -->
 <div id="menuModal" class="overlay">
   <div class="modal">
     <div style="display:flex;justify-content:space-between;align-items:center">
       <strong>Menu</strong> <button id="closeMenu" class="btn">✕</button>
     </div>
-
     <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
-      <button id="openSignUp" class="btn">Sign up</button>
-      <button id="openSignIn" class="btn">Sign in</button>
+      <button id="openSignUp" class="btn primary">Sign up</button>
+      <button id="openSignIn" class="btn primary">Sign in</button>
       <button id="openAbout" class="btn">About</button>
       <button id="openSettings" class="btn">Settings</button>
       <button id="openContact" class="btn">Contact us</button>
@@ -121,21 +91,19 @@
   </div>
 </div>
 
-<!-- SignUp Modal (localStorage-based) -->
+<!-- Signup Modal -->
 <div id="signupModal" class="overlay">
   <div class="modal">
     <div style="display:flex;justify-content:space-between;align-items:center">
       <strong>Sign up</strong> <button class="btn closeModal">✕</button>
     </div>
-
     <div style="margin-top:12px">
       <label>Profile picture</label>
       <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
-        <img id="signupPreview" src="" style="width:64;height:64;border-radius:50%;object-fit:cover;display:none">
+        <img id="signupPreview" src="" style="width:64px;height:64px;border-radius:50%;object-fit:cover;display:none">
         <button id="pickProfile" class="btn">Choose picture</button>
         <input id="profileFile" type="file" accept="image/*" style="display:none">
       </div>
-
       <input id="signupUsername" placeholder="Username" style="width:100%;padding:8px;margin-top:8px">
       <input id="signupEmail" placeholder="Email" type="email" style="width:100%;padding:8px;margin-top:8px">
       <div style="display:flex;gap:8px;margin-top:8px">
@@ -143,7 +111,6 @@
         <button id="toggleSignupPass" class="btn">Show</button>
       </div>
       <input id="signupPet" placeholder="Pet name (for recovery)" style="width:100%;padding:8px;margin-top:8px">
-
       <div style="display:flex;gap:8px;margin-top:12px">
         <button id="doSignup" class="btn primary">Create account</button>
         <button id="cancelSignup" class="btn">Cancel</button>
@@ -152,7 +119,7 @@
   </div>
 </div>
 
-<!-- SignIn Modal -->
+<!-- Signin Modal -->
 <div id="signinModal" class="overlay">
   <div class="modal">
     <div style="display:flex;justify-content:space-between;align-items:center">
@@ -172,7 +139,7 @@
   </div>
 </div>
 
-<!-- Forgot flow -->
+<!-- Forgot / Reset -->
 <div id="forgotModal" class="overlay">
   <div class="modal">
     <div style="display:flex;justify-content:space-between;align-items:center">
@@ -182,7 +149,7 @@
       <div>What is your pet name?</div>
       <input id="petNameInput" placeholder="Pet name" style="width:100%;padding:8px;margin-top:8px">
       <div style="display:flex;gap:8px;margin-top:10px">
-        <button id="submitPet" class="btn buy">Submit</button>
+        <button id="submitPet" class="btn primary">Submit</button>
         <button id="cancelPet" class="btn">Cancel</button>
       </div>
     </div>
@@ -198,7 +165,7 @@
     <div style="margin-top:12px">
       <input id="newPassword" placeholder="New password" type="password" style="width:100%;padding:8px;">
       <div style="display:flex;gap:8px;margin-top:10px">
-        <button id="doChangePw" class="btn buy">Submit</button>
+        <button id="doChangePw" class="btn primary">Submit</button>
         <button id="cancelChangePw" class="btn">Cancel</button>
       </div>
       <div id="pwMsg" style="margin-top:10px;font-weight:700"></div>
@@ -206,7 +173,7 @@
   </div>
 </div>
 
-<!-- Country modal -->
+<!-- Country -->
 <div id="countryModal" class="overlay">
   <div class="modal">
     <div style="display:flex;justify-content:space-between;align-items:center">
@@ -219,7 +186,7 @@
   </div>
 </div>
 
-<!-- Cart modal -->
+<!-- Cart -->
 <div id="cartModal" class="overlay">
   <div class="modal" style="max-width:720px">
     <div style="display:flex;justify-content:space-between;align-items:center">
@@ -227,25 +194,22 @@
     </div>
     <div id="cartItems" style="margin-top:10px;max-height:60vh;overflow:auto"></div>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
-      <button id="checkoutBtn" class="btn buy">Checkout (WhatsApp)</button>
+      <button id="checkoutBtn" class="btn primary">Checkout (WhatsApp)</button>
       <button id="clearCart" class="btn">Clear cart</button>
     </div>
   </div>
 </div>
 
-<!-- Firebase + app logic -->
 <script type="module">
-/* ========== Firebase setup (read-only for index) ========== */
+/* Firebase (read-only) */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-import { getFirestore, collection, onSnapshot, addDoc, doc, getDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
-import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-storage.js";
+import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
-/* Your Firebase config (you provided this) */
 const firebaseConfig = {
   apiKey: "AIzaSyDhnK7DGb9guxUSjkWWH6s7jT7-NU0oBdM",
   authDomain: "nature-heals-4f4db.firebaseapp.com",
   projectId: "nature-heals-4f4db",
-  storageBucket: "nature-heals-4f4db.appspot.com",  // ✅ Correct this line
+  storageBucket: "nature-heals-4f4db.appspot.com",
   messagingSenderId: "945050051317",
   appId: "1:945050051317:web:8da40b136b6e6b794c9bbc",
   measurementId: "G-FYJ6SBDQN7"
@@ -253,156 +217,101 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const storage = getStorage(app);
 
-/* ========== DOM refs ========== */
+/* Helpers for popups */
+function showToast(title, icon='success'){ Swal.fire({toast:true,position:'top-end',title,icon,showConfirmButton:false,timer:2200,timerProgressBar:true}); }
+function showPopup(title, text, icon='info'){ Swal.fire({title,text,icon,confirmButtonColor:'#16a34a'}); }
+
+/* DOM refs */
 const productGrid = document.getElementById('productGrid');
-const cartCountEl = document.getElementById('cartCount');
-const profileImgEl = document.getElementById('profileImg');
 const searchInput = document.getElementById('searchInput');
-const coverImg = document.getElementById('coverImg');
+const profileImg = document.getElementById('profileImg');
+const cartCountEl = document.getElementById('cartCount');
 
-/* ========== LocalStorage keys ========== */
 const LS_USER = 'NH_USER_v1';
 const LS_CART = 'NH_CART_v1';
-const LS_COUNTRY = 'NH_COUNTRY_v1';
-
-/* ========== Utilities & popup helpers ========== */
-const $ = id => document.getElementById(id);
-function uid(){ return 'id'+Math.random().toString(36).slice(2,9); }
-
-/* SweetAlert2 helpers (inserted: replacements for alert) */
-function showToast(msg, icon="success"){
-  Swal.fire({
-    toast:true,
-    position:'top-end',
-    icon:icon,
-    title: msg,
-    showConfirmButton:false,
-    timer:2500,
-    timerProgressBar:true,
-    background: '#ffffff',
-    color: '#064E3B'
-  });
-}
-function showPopup(title, text, icon="info"){
-  Swal.fire({
-    title: title,
-    text: text,
-    icon: icon,
-    confirmButtonColor:"#16a34a"
-  });
-}
-
-/* ========== Init: load cover asset already uses cover.gif (local file) ==========
-   Note: asset files should live in the same folder as index.html: cover.gif and audio.mp3
-*/
-(async function initCoverAndAudio(){
-  // nothing required here: cover and audio are loaded via markup.
-})();
-
-/* ========== Load products in realtime from Firestore ========== */
-function renderProducts(snapshotDocs){
-  productGrid.innerHTML = '';
-  snapshotDocs.forEach(d=>{
-    const p = d.data; // d.data is already an object from Firestore
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.innerHTML = `
-      <img src="${p.imageURL}" alt="${p.name}">
-      <h3>${p.name}</h3>
-      <div class="priceRow">
-        <div style="font-weight:800">₦${Number(p.price).toFixed(2)}</div>
-        <div style="display:flex;gap:8px">
-          <button class="btn add" data-id="${d.id}" data-name="${p.name}" data-price="${p.price}">Add to cart</button>
-          <button class="btn buy" data-id="${d.id}" data-name="${p.name}">Buy now</button>
-        </div>
-      </div>`;
-    productGrid.appendChild(card);
-  });
-
-  // If no items at all
-  if (snapshotDocs.length === 0) {
-    productGrid.innerHTML = '<div style="text-align:center;color:#666;padding:20px;">No products available yet 🌱</div>';
-  }
-}
-
-
-/* subscribe to products collection */
-const productsSnapshot = [];
-onSnapshot(collection(db, 'products'), snap => {
-  const docs = [];
-  snap.forEach(docSnap => {
-    docs.push({id:docSnap.id, data: docSnap.data()});
-  });
-  // store snapshot for search/filter
-  productsSnapshot.length = 0; productsSnapshot.push(...docs);
-  renderProducts(docs);
-  applySearch();
-  
-});
-
-/* ========== Search ========== */
-function applySearch(){
-  const q = (searchInput.value || '').trim().toLowerCase();
-  if(!q){ document.querySelectorAll('.card').forEach(c=>c.style.display='block'); return; }
-  document.querySelectorAll('.card').forEach(card=>{
-    const text = card.textContent.toLowerCase();
-    card.style.display = text.includes(q) ? 'block' : 'none';
-  });
-}
-searchInput.addEventListener('input', applySearch);
-
-/* ========== Local user and cart handling ========== */
 let currentUser = JSON.parse(localStorage.getItem(LS_USER) || 'null');
 let cart = JSON.parse(localStorage.getItem(LS_CART) || '[]');
 
 function saveUser(){ localStorage.setItem(LS_USER, JSON.stringify(currentUser)); }
 function saveCart(){ localStorage.setItem(LS_CART, JSON.stringify(cart)); updateCartUI(); }
-
 function updateCartUI(){ cartCountEl.textContent = cart.length || 0; }
 
+if(currentUser && currentUser.profilePicDataURL) profileImg.src = currentUser.profilePicDataURL;
 updateCartUI();
-if(currentUser && currentUser.profilePicDataURL) profileImgEl.src = currentUser.profilePicDataURL;
 
-/* Profile picture change (stays in localStorage even after logout) */
-profileImgEl.addEventListener('click', ()=>{
+/* Render function */
+function renderProducts(products){
+  productGrid.innerHTML = '';
+  if(!products.length){ productGrid.innerHTML = '<div style="text-align:center;color:#666;padding:20px;">No products yet 🌱</div>'; return; }
+  products.forEach(p=>{
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.innerHTML = `
+      <img src="${p.imageURL}" alt="${p.name}">
+      <h3>${p.name}</h3>
+      <div class="priceRow">
+        <div style="font-weight:800">₦${Number(p.price).toFixed(2)}</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn product-add" data-name="${escapeHtml(p.name)}" data-price="${p.price}">Add to Cart</button>
+          <button class="btn product-buy" data-name="${escapeHtml(p.name)}">Buy Now</button>
+        </div>
+      </div>`;
+    productGrid.appendChild(el);
+  });
+}
+
+/* safe escape for dataset */
+function escapeHtml(s){ return String(s).replace(/"/g,'&quot;'); }
+
+/* Realtime listener */
+onSnapshot(collection(db,'products'), snap=>{
+  const items = [];
+  snap.forEach(docSnap=> items.push(docSnap.data()));
+  renderProducts(items);
+});
+
+/* Search */
+searchInput.addEventListener('input', ()=> {
+  const q = searchInput.value.trim().toLowerCase();
+  document.querySelectorAll('.card').forEach(c=>{
+    c.style.display = c.textContent.toLowerCase().includes(q) ? 'block' : 'none';
+  });
+});
+
+/* Profile picture change (local only) */
+profileImg.addEventListener('click', ()=>{
   const f = document.createElement('input'); f.type='file'; f.accept='image/*';
   f.onchange = e=>{
     const file = e.target.files[0]; if(!file) return;
     const r = new FileReader();
     r.onload = ()=> {
-      const data = r.result;
-      profileImgEl.src = data;
+      const dataUrl = r.result;
+      profileImg.src = dataUrl;
       currentUser = currentUser || {};
-      currentUser.profilePicDataURL = data;
+      currentUser.profilePicDataURL = dataUrl;
       saveUser();
-      // ✅ replaced alert with toast
-      showToast('Profile picture updated locally 🌿', 'success');
+      showToast('Profile picture updated locally 🌿','success');
     };
     r.readAsDataURL(file);
   };
   f.click();
 });
 
-/* ========== Menu interactions & modals ========== */
-const menuModal = $('menuModal');
-$('menuBtn').addEventListener('click', ()=> menuModal.style.display='flex');
-$('closeMenu').addEventListener('click', ()=> menuModal.style.display='none');
+/* Menu open/close and modal wiring */
+const overlayEls = document.querySelectorAll('.overlay');
+function closeAllModals(){ overlayEls.forEach(o=>o.style.display='none'); }
+document.getElementById('menuBtn').addEventListener('click', ()=> document.getElementById('menuModal').style.display='flex');
+document.getElementById('closeMenu').addEventListener('click', ()=> closeAllModals());
+document.querySelectorAll('.closeModal').forEach(b=> b.addEventListener('click', ()=> closeAllModals()));
+document.getElementById('openSignUp').addEventListener('click', ()=> { closeAllModals(); document.getElementById('signupModal').style.display='flex'; });
+document.getElementById('openSignIn').addEventListener('click', ()=> { closeAllModals(); document.getElementById('signinModal').style.display='flex'; });
+document.getElementById('openAbout').addEventListener('click', ()=> { closeAllModals(); window.location.href='about.html'; });
+document.getElementById('openSettings').addEventListener('click', ()=> { closeAllModals(); toggleTheme(); });
+document.getElementById('openContact').addEventListener('click', ()=> { closeAllModals(); const msg=encodeURIComponent('Hello Nature Heals, I need help.'); window.open('https://wa.me/15813419686?text='+msg,'_blank'); });
 
-/* open sign up / in */
-$('openSignUp').addEventListener('click', ()=>{
-  menuModal.style.display='none';
-  $('signupModal').style.display='flex';
-});
-$('openSignIn').addEventListener('click', ()=>{
-  menuModal.style.display='none';
-  $('signinModal').style.display='flex';
-});
-$('openAbout').addEventListener('click', ()=> { menuModal.style.display='none'; window.location.href = 'about.html'; });
-$('openSettings').addEventListener('click', ()=> {
-  menuModal.style.display='none';
-  // toggle light/dark
+/* Theme toggle */
+function toggleTheme(){
   const mode = localStorage.getItem('NH_MODE') || 'light';
   const newMode = mode==='light' ? 'dark' : 'light';
   if(newMode==='dark'){
@@ -410,154 +319,99 @@ $('openSettings').addEventListener('click', ()=> {
     document.documentElement.style.setProperty('--card','#0b1b1a');
     document.documentElement.style.setProperty('--muted','#dff6ec');
     localStorage.setItem('NH_MODE','dark');
-  } else {
+  }else{
     document.documentElement.style.setProperty('--bg','#f6fff6');
     document.documentElement.style.setProperty('--card','#ffffff');
     document.documentElement.style.setProperty('--muted','#234e3a');
     localStorage.setItem('NH_MODE','light');
   }
-  // ✅ replaced alert with toast
-  showToast('Theme set to ' + newMode, 'info');
-});
-$('openContact').addEventListener('click', ()=> {
-  const msg = encodeURIComponent('Hello Nature Heals, I need help.');
-  window.open('https://wa.me/15813419686?text=' + msg, '_blank');
-});
+  showToast('Theme set to ' + newMode,'info');
+}
 
-/* close modals */
-document.querySelectorAll('.closeModal').forEach(b=>b.addEventListener('click', ()=> { document.querySelectorAll('.overlay').forEach(o=>o.style.display='none'); }));
-
-/* ========== Signup / Signin (localStorage-based) ========== */
-// pick profile in signup
-$('pickProfile').addEventListener('click', ()=> $('profileFile').click());
-$('profileFile').addEventListener('change', (e)=>{
+/* Signup / Signin local handling */
+document.getElementById('pickProfile').addEventListener('click', ()=> document.getElementById('profileFile').click());
+document.getElementById('profileFile').addEventListener('change', (e)=> {
   const file = e.target.files[0]; if(!file) return;
-  const r = new FileReader();
-  r.onload = ()=>{ $('signupPreview').src = r.result; $('signupPreview').style.display = 'block'; $('signupPreview').dataset.data = r.result; };
-  r.readAsDataURL(file);
+  const r = new FileReader(); r.onload = ()=> { document.getElementById('signupPreview').src = r.result; document.getElementById('signupPreview').style.display='block'; document.getElementById('signupPreview').dataset.data = r.result; }; r.readAsDataURL(file);
 });
+document.getElementById('toggleSignupPass').addEventListener('click', ()=> { const p = document.getElementById('signupPassword'); p.type = p.type === 'password' ? 'text' : 'password'; document.getElementById('toggleSignupPass').textContent = p.type==='password'?'Show':'Hide'; });
 
-$('toggleSignupPass').addEventListener('click', ()=>{
-  const p = $('signupPassword');
-  p.type = p.type==='password' ? 'text' : 'password';
-  $('toggleSignupPass').textContent = p.type==='password' ? 'Show' : 'Hide';
-});
-
-$('doSignup').addEventListener('click', ()=>{
-  const username = $('signupUsername').value.trim();
-  const email = $('signupEmail').value.trim();
-  const pw = $('signupPassword').value;
-  const pet = $('signupPet').value.trim();
-  const pic = $('signupPreview').dataset?.data || null;
-  if(!email || !pw){
-    // ✅ replaced alert with popup
-    showPopup('Missing details','Please provide email and password.','warning');
-    return;
-  }
-  // save locally as a simple user store
+document.getElementById('doSignup').addEventListener('click', ()=> {
+  const username = document.getElementById('signupUsername').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const pw = document.getElementById('signupPassword').value;
+  const pet = document.getElementById('signupPet').value.trim();
+  const pic = document.getElementById('signupPreview').dataset?.data || null;
+  if(!email || !pw){ showPopup('Missing details','Please provide email and password.','warning'); return; }
   const usersLocal = JSON.parse(localStorage.getItem('NH_LOCAL_USERS') || '[]');
-  if(usersLocal.find(u=>u.email===email)){
-    // ✅ replaced alert with popup
-    showPopup('Email exists','Email already exists. Please sign in.','warning');
-    return;
-  }
-  usersLocal.push({email, username, password:pw, pet, profilePicDataURL:pic});
+  if(usersLocal.find(u=>u.email===email)){ showPopup('Email exists','Email already exists. Please sign in.','warning'); return; }
+  usersLocal.push({email, username, password:pw, pet, profilePicDataURL: pic});
   localStorage.setItem('NH_LOCAL_USERS', JSON.stringify(usersLocal));
   currentUser = {email, username, profilePicDataURL: pic, pet};
   saveUser();
-  $('signupModal').style.display='none';
-  updateCartUI();
-  // ✅ replaced alert with centered popup success
+  closeAllModals();
   showPopup('Account Created','You are now signed in locally.','success');
+  updateCartUI();
 });
 
-$('toggleSigninPass').addEventListener('click', ()=>{
-  const p = $('signinPassword');
-  p.type = p.type==='password' ? 'text' : 'password';
-  $('toggleSigninPass').textContent = p.type==='password' ? 'Show' : 'Hide';
-});
+document.getElementById('toggleSigninPass').addEventListener('click', ()=> { const p=document.getElementById('signinPassword'); p.type=p.type==='password'?'text':'password'; document.getElementById('toggleSigninPass').textContent = p.type==='password'?'Show':'Hide'; });
 
-$('doSignin').addEventListener('click', ()=>{
-  const email = $('signinEmail').value.trim();
-  const pw = $('signinPassword').value;
+document.getElementById('doSignin').addEventListener('click', ()=> {
+  const email = document.getElementById('signinEmail').value.trim();
+  const pw = document.getElementById('signinPassword').value;
   const usersLocal = JSON.parse(localStorage.getItem('NH_LOCAL_USERS') || '[]');
   const u = usersLocal.find(x=>x.email===email && x.password===pw);
-  if(!u){
-    // ✅ replaced alert with popup error
-    showPopup('Login Failed','Invalid credentials','error');
-    return;
-  }
+  if(!u){ showPopup('Login Failed','Invalid credentials','error'); return; }
   currentUser = {email:u.email, username:u.username, profilePicDataURL:u.profilePicDataURL, pet:u.pet};
   saveUser();
-  $('signinModal').style.display='none';
-  if(currentUser.profilePicDataURL) profileImgEl.src = currentUser.profilePicDataURL;
-  // ✅ replaced alert with toast
-  showToast('Signed in as ' + (u.username || u.email), 'success');
+  closeAllModals();
+  if(currentUser.profilePicDataURL) profileImg.src = currentUser.profilePicDataURL;
+  showToast('Signed in as ' + (u.username || u.email),'success');
 });
 
-// forgot flow (pet name)
-$('forgotPass').addEventListener('click', ()=>{
-  $('signinModal').style.display='none';
-  $('forgotModal').style.display='flex';
-});
-$('cancelPet').addEventListener('click', ()=> $('forgotModal').style.display='none');
-$('submitPet').addEventListener('click', ()=>{
-  const pet = $('petNameInput').value.trim();
+/* Forgot / Reset */
+document.getElementById('forgotPass').addEventListener('click', ()=> { closeAllModals(); document.getElementById('forgotModal').style.display='flex'; });
+document.getElementById('cancelPet').addEventListener('click', ()=> closeAllModals());
+document.getElementById('submitPet').addEventListener('click', ()=> {
+  const pet = document.getElementById('petNameInput').value.trim();
   const usersLocal = JSON.parse(localStorage.getItem('NH_LOCAL_USERS') || '[]');
   const u = usersLocal.find(x=>x.pet && x.pet.toLowerCase()===pet.toLowerCase());
-  if(!u){
-    // ✅ replaced alert with popup
-    showPopup('Not found','No user found with that pet name','error');
-    return;
-  }
-  // allow password change: show pw change modal
-  $('forgotModal').style.display='none';
-  $('pwChangeModal').style.display='flex';
-  $('pwChangeModal').dataset.target = u.email;
+  if(!u){ showPopup('Not found','No user found with that pet name','error'); return; }
+  closeAllModals(); document.getElementById('pwChangeModal').style.display='flex'; document.getElementById('pwChangeModal').dataset.target = u.email;
 });
-$('doChangePw').addEventListener('click', ()=>{
-  const newpw = $('newPassword').value;
-  const target = $('pwChangeModal').dataset.target;
-  if(!newpw){ $('pwMsg').textContent = 'Please provide a new password.'; return; }
+document.getElementById('doChangePw').addEventListener('click', ()=> {
+  const newpw = document.getElementById('newPassword').value;
+  const target = document.getElementById('pwChangeModal').dataset.target;
+  if(!newpw){ document.getElementById('pwMsg').textContent='Please provide a new password.'; return; }
   const usersLocal = JSON.parse(localStorage.getItem('NH_LOCAL_USERS') || '[]');
   const idx = usersLocal.findIndex(x=>x.email===target);
-  if(idx>-1){ usersLocal[idx].password = newpw; localStorage.setItem('NH_LOCAL_USERS', JSON.stringify(usersLocal)); $('pwMsg').textContent='Password changed successfully.'; setTimeout(()=>{$('pwChangeModal').style.display='none';},800);
-    // ✅ added toast to show success
-    showToast('Password changed successfully','success');
-  }
+  if(idx>-1){ usersLocal[idx].password = newpw; localStorage.setItem('NH_LOCAL_USERS', JSON.stringify(usersLocal)); document.getElementById('pwMsg').textContent='Password changed successfully.'; setTimeout(()=> closeAllModals(),800); showToast('Password changed successfully','success'); }
 });
 
-/* ========== Country picker (short list; paste full list if you want) ========== */
+/* Country picker short list (expandable) */
 const COUNTRIES = [
   {code:'NG', name:'Nigeria', flag:'🇳🇬'}, {code:'US', name:'United States', flag:'🇺🇸'},
   {code:'GB', name:'United Kingdom', flag:'🇬🇧'}, {code:'CA', name:'Canada', flag:'🇨🇦'},
   {code:'IN', name:'India', flag:'🇮🇳'}, {code:'FR', name:'France', flag:'🇫🇷'}
 ];
 function openCountryPicker(){
-  $('countryModal').style.display='flex';
-  const list = $('countryList'); list.innerHTML='';
+  document.getElementById('countryModal').style.display='flex';
+  const list = document.getElementById('countryList'); list.innerHTML='';
   COUNTRIES.forEach(c=>{
-    const row = document.createElement('div');
-    row.style.padding='8px'; row.style.cursor='pointer'; row.style.display='flex'; row.style.gap='8px'; row.style.alignItems='center';
+    const row=document.createElement('div'); row.style.padding='8px'; row.style.cursor='pointer'; row.style.display='flex'; row.style.gap='8px'; row.style.alignItems='center';
     row.innerHTML = `<div style="font-size:20px">${c.flag}</div><div style="flex:1">${c.name}</div>`;
-    row.addEventListener('click', ()=>{ localStorage.setItem(LS_COUNTRY, JSON.stringify(c)); $('selectedFlag').textContent = c.flag; $('selectedCountry').textContent = c.name; $('countryModal').style.display='none'; });
+    row.addEventListener('click', ()=> { localStorage.setItem('NH_COUNTRY_v1', JSON.stringify(c)); document.getElementById('selectedFlag').textContent=c.flag; document.getElementById('selectedCountry').textContent=c.name; closeAllModals(); });
     list.appendChild(row);
   });
 }
-$('countryBtn').addEventListener('click', openCountryPicker);
-document.querySelectorAll('#countryModal .closeModal').forEach(b=>b.addEventListener('click', ()=> $('countryModal').style.display='none'));
-const savedCountry = JSON.parse(localStorage.getItem(LS_COUNTRY) || 'null');
-if(savedCountry){ $('selectedFlag').textContent = savedCountry.flag; $('selectedCountry').textContent = savedCountry.name; }
+document.getElementById('countryBtn').addEventListener('click', openCountryPicker);
 
-/* ========== Cart UI & actions (localStorage) ========== */
-$('cartBtn').addEventListener('click', ()=> {
-  $('cartModal').style.display='flex';
-  renderCartItems();
-});
+/* Cart features (localStorage) */
+document.getElementById('cartBtn').addEventListener('click', ()=> { document.getElementById('cartModal').style.display='flex'; renderCartItems(); });
 function renderCartItems(){
-  const container = $('cartItems'); container.innerHTML = '';
+  const container = document.getElementById('cartItems'); container.innerHTML='';
   if(cart.length===0){ container.innerHTML = '<div style="padding:12px;color:#666">Your cart is empty.</div>'; return; }
-  cart.forEach((item, idx)=>{
+  cart.forEach((item, idx) => {
     const row = document.createElement('div');
     row.style.display='flex'; row.style.alignItems='center'; row.style.gap='8px'; row.style.padding='8px 0'; row.style.borderBottom='1px solid rgba(0,0,0,0.04)';
     row.innerHTML = `<div style="flex:1"><div style="font-weight:800">${item.name}</div><div style="color:#666">₦${Number(item.price).toFixed(2)}</div></div><button data-idx="${idx}" class="btn removeItem" style="background:#ef4444;color:#fff">Remove</button>`;
@@ -565,53 +419,42 @@ function renderCartItems(){
   });
 }
 document.addEventListener('click', (e)=>{
-  if(e.target.classList.contains('add')){
-    const id = e.target.dataset.id;
-    // find product in current snapshot
-    const found = productsSnapshot.find(d => d.id === id);
-    if(!found){
-      // ✅ replaced alert with popup
-      showPopup('Product unavailable','Product not available','error');
-      return;
-    }
-    cart.push({id:found.id, name: found.data.name, price: found.data.price});
-    saveCart();
-    // ✅ replaced alert with toast
-    showToast(found.data.name + ' added to cart 🛒', 'success');
-  }
-  if(e.target.classList.contains('buy')){
+  if(e.target.classList.contains('product-add')){
     const name = e.target.dataset.name;
-    const email = currentUser?.email || 'guest@example.com';
-    const waMsg = encodeURIComponent(`Hello Nature Heals, I want to buy "${name}". My email: ${email}. How do I make payment?`);
-    window.open(`https://wa.me/15813419686?text=${waMsg}`, '_blank');
+    const price = Number(e.target.dataset.price || 0);
+    cart.push({name, price});
+    saveCart();
+    showToast(`${name} added to cart`,'success');
+  }
+  if(e.target.classList.contains('product-buy')){
+    const name = e.target.dataset.name;
+    const email = (currentUser && currentUser.email) ? currentUser.email : 'guest@example.com';
+    const msg = encodeURIComponent(`Hello Nature Heals, I want to buy "${name}". My email: ${email}. How do I make payment?`);
+    window.open(`https://wa.me/15813419686?text=${msg}`, '_blank');
   }
   if(e.target.classList.contains('removeItem')){
     const idx = Number(e.target.dataset.idx);
     cart.splice(idx,1); saveCart(); renderCartItems();
   }
 });
-
-/* cart actions */
-$('clearCart').addEventListener('click', ()=>{ cart=[]; saveCart(); renderCartItems(); });
-$('checkoutBtn').addEventListener('click', ()=>{
-  if(cart.length===0){
-    // ✅ replaced alert with popup
-    showPopup('Cart empty','Your cart is empty','info');
-    return;
-  }
+document.getElementById('clearCart').addEventListener('click', ()=>{ cart = []; saveCart(); renderCartItems(); });
+document.getElementById('checkoutBtn').addEventListener('click', ()=> {
+  if(cart.length===0){ showPopup('Cart empty','Your cart is empty','info'); return; }
   const names = cart.map(i=>i.name).join(', ');
-  const email = currentUser?.email || 'guest@example.com';
-  const wa = encodeURIComponent(`Hello Nature Heals, I want to checkout: ${names}. My email: ${email}. How do I pay?`);
-  window.open(`https://wa.me/15813419686?text=${wa}`, '_blank');
+  const email = (currentUser && currentUser.email) ? currentUser.email : 'guest@example.com';
+  const msg = encodeURIComponent(`Hello Nature Heals, I want to checkout: ${names}. My email: ${email}. How do I pay?`);
+  window.open(`https://wa.me/15813419686?text=${msg}`, '_blank');
 });
 
-/* ========== small UX: close overlays when clicking outside ========= */
-document.querySelectorAll('.overlay').forEach(ov => {
-  ov.addEventListener('click', (e) => { if(e.target === ov) ov.style.display='none'; });
-});
+/* Close overlays on outside click */
+document.querySelectorAll('.overlay').forEach(ov => ov.addEventListener('click', (e) => { if(e.target === ov) ov.style.display = 'none'; }));
 
-/* ========== Finished init UI state ========== */
-updateCartUI();
+/* Mobile audio autoplay helper */
+const bgAudio = document.getElementById('bgAudio');
+document.body.addEventListener('click', ()=> { if(bgAudio.paused) bgAudio.play().catch(()=>{}); });
+
+/* util popup wrappers (exposed if needed) */
+window.showToast = showToast; window.showPopup = showPopup;
 </script>
 </body>
 </html>
