@@ -4,81 +4,104 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Nature Heals — Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;800&display=swap" rel="stylesheet">
+
+<!-- Fonts & SweetAlert2 -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <style>
-  body{margin:0;font-family:'Poppins',sans-serif;background:#f3f7f6;color:#10221b;padding:18px}
-  .app{max-width:1100px;margin:0 auto}
-  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-  h1{margin:0}
-  .grid{display:grid;grid-template-columns:320px 1fr;gap:18px}
-  .card{background:white;padding:14px;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.06)}
-  label{display:block;margin-top:8px;font-weight:700}
-  input[type="text"], input[type="number"]{width:100%;padding:8px;border-radius:8px;border:1px solid #e6ece8}
-  button{padding:8px 12px;border-radius:8px;border:0;background:#2f855a;color:white;cursor:pointer;font-weight:700}
-  button.ghost{background:#fff;color:#2f855a;border:1px solid #e6ece8}
+  :root{
+    --bg: #f6fff6;
+    --card: #fff;
+    --accent: #16a34a;
+    --muted: #163925;
+    --muted-2:#2f855a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Poppins',sans-serif;background:var(--bg);color:var(--muted);padding:22px}
+  .wrap{max-width:1100px;margin:0 auto}
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+  h1{margin:0;font-size:20px}
+  .grid{display:grid;grid-template-columns:360px 1fr;gap:18px}
+  .card{background:var(--card);padding:18px;border-radius:12px;box-shadow:0 8px 30px rgba(9,30,15,0.04)}
+  label{display:block;margin-top:10px;font-weight:700;color:#163925}
+  input[type="text"], input[type="number"], input[type="file"]{width:100%;padding:10px;border-radius:10px;border:1px solid #e7efe8;margin-top:6px}
+  .row{display:flex;gap:8px;margin-top:12px}
+  button{padding:10px 14px;border-radius:10px;border:0;background:var(--accent);color:white;cursor:pointer;font-weight:700}
+  button.ghost{background:#fff;color:var(--muted);border:1px solid #e7efe8}
+  button.red{background:#ef4444}
+  .muted{color:#66756a;font-size:13px;margin-top:8px}
   .list{margin-top:12px;max-height:560px;overflow:auto}
-  .item{display:flex;align-items:center;gap:12px;padding:10px;border-bottom:1px solid #eef3f1}
-  img.thumb{width:72px;height:72px;object-fit:cover;border-radius:8px}
-  .danger{background:#ef4444}
+  .item{display:flex;align-items:center;gap:12px;padding:12px;border-bottom:1px solid #eef6ef}
+  .thumb{width:84px;height:64px;object-fit:cover;border-radius:8px;border:1px solid #eef6ef}
+  .itemTitle{font-weight:800}
+  .small{font-size:13px;color:#6b8b7a}
+  .toolbar{display:flex;gap:8px;align-items:center}
+  .empty{padding:18px;color:#6b8b7a;text-align:center}
+  @media (max-width:920px){
+    .grid{grid-template-columns:1fr; }
+    .thumb{width:72px;height:56px}
+  }
 </style>
 </head>
 <body>
-  <div class="app">
+  <div class="wrap">
     <header>
-      <h1>Nature Heals — Admin</h1>
-      <div>
+      <h1>Nature Heals — Admin Panel</h1>
+      <div class="toolbar">
         <button id="refreshBtn" class="ghost">Refresh</button>
+        <button id="docsConsole" class="ghost">Open Firestore</button>
       </div>
     </header>
 
     <div class="grid">
-      <div class="card">
-        <h3>Add Product</h3>
-        <label>Picture name</label>
-        <input id="prodName" type="text" placeholder="Misty Forest">
-        <label>Price (NGN)</label>
-        <input id="prodPrice" type="number" placeholder="1200">
-        <label>Picture file</label>
+      <!-- LEFT: Add product -->
+      <div class="card" aria-labelledby="add-heading">
+        <h2 id="add-heading" style="margin:0 0 8px 0;color:var(--muted)">Add Product</h2>
+
+        <label for="prodName">Picture name</label>
+        <input id="prodName" type="text" placeholder="Misty Forest" autocomplete="off">
+
+        <label for="prodPrice">Price (NGN)</label>
+        <input id="prodPrice" type="number" placeholder="1200" min="0" step="0.01">
+
+        <label for="prodImage">Picture file</label>
         <input id="prodImage" type="file" accept="image/*">
-        <div style="margin-top:10px;display:flex;gap:8px">
+
+        <div class="row">
           <button id="addProd">Add product</button>
-          <button id="uploadCover" class="ghost">(Cover is local asset)</button>
+          <button id="clearForm" class="ghost">Clear</button>
         </div>
-        <p style="margin-top:10px;color:#666;font-size:13px">Note: cover.gif and audio.mp3 are local files in the <strong>assets/</strong> folder; upload products here to add them globally.</p>
+
+        <div class="muted">
+          Note: Cover (cover.gif) and background audio are served from the site folder. Use this tool only to upload product images that will appear for all users.
+        </div>
       </div>
 
+      <!-- RIGHT: Products list -->
       <div class="card">
-        <h3>Products (live)</h3>
-        <div id="prodList" class="list">Loading...</div>
+        <h2 style="margin:0 0 8px 0;color:var(--muted)">Products (Live)</h2>
+        <div id="prodList" class="list">
+          <div class="empty">Loading products…</div>
+        </div>
       </div>
     </div>
 
-    <div style="height:18px"></div>
+    <div style="height:16px"></div>
 
-    <div class="grid">
-      <div class="card">
-        <h3>Upload audio (optional)</h3>
-        <input id="audioFile" type="file" accept="audio/*">
-        <div style="margin-top:8px">
-          <button id="uploadAudio">Upload to Storage (optional)</button>
-        </div>
-        <p style="margin-top:10px;color:#666">Note: index.html uses local asset <strong>assets/audio.mp3</strong>. If you prefer to host audio in Firebase, use this tool and change index to load from production storage URL.</p>
-      </div>
-
-      <div class="card">
-        <h3>Users (local clients only)</h3>
-        <div id="usersList" class="list">Users are stored on-device; signups are local by default.</div>
-      </div>
+    <div class="card">
+      <h3 style="margin:0 0 8px 0;color:var(--muted)">Users (Note)</h3>
+      <div class="muted">Users are currently stored locally on each client (localStorage). If you want server-side users later, we can add a secure users collection in Firestore.</div>
     </div>
   </div>
 
 <script type="module">
+/* === Firebase SDKs === */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-storage.js";
 
-/* Firebase config (corrected storageBucket) */
+/* === Firebase config (correct storageBucket) === */
 const firebaseConfig = {
   apiKey: "AIzaSyDhnK7DGb9guxUSjkWWH6s7jT7-NU0oBdM",
   authDomain: "nature-heals-4f4db.firebaseapp.com",
@@ -93,73 +116,160 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-function toast(msg, icon='success'){ Swal.fire({toast:true,position:'top-end',title:msg,icon,showConfirmButton:false,timer:2200,timerProgressBar:true}); }
-function popup(title, text, icon='info'){ Swal.fire({title,text,icon,confirmButtonColor:'#16a34a'}); }
-
-/* Load products realtime */
+/* === DOM refs === */
 const prodList = document.getElementById('prodList');
-async function loadProducts(){
-  prodList.innerHTML = 'Loading...';
-  onSnapshot(collection(db,'products'), snap => {
-    prodList.innerHTML = '';
-    if(snap.empty) prodList.innerHTML = '<div style="color:#666">No products yet.</div>';
-    snap.forEach(docSnap => {
-      const p = docSnap.data();
-      const div = document.createElement('div'); div.className='item';
-      div.innerHTML = `<img class="thumb" src="${p.imageURL}"><div style="flex:1"><div style="font-weight:800">${p.name}</div><div style="color:#666">₦${Number(p.price).toFixed(2)}</div></div><div><button data-id="${docSnap.id}" class="removeBtn danger">Remove</button></div>`;
-      prodList.appendChild(div);
-    });
-  }, err => { console.error(err); popup("Error","Failed to load products","error"); });
+const addProdBtn = document.getElementById('addProd');
+const prodNameEl = document.getElementById('prodName');
+const prodPriceEl = document.getElementById('prodPrice');
+const prodImageEl = document.getElementById('prodImage');
+const refreshBtn = document.getElementById('refreshBtn');
+const clearFormBtn = document.getElementById('clearForm');
+const docsConsole = document.getElementById('docsConsole');
+
+/* === UI helpers (SweetAlert2) === */
+function toast(msg, icon='success'){
+  Swal.fire({ toast:true, position:'top-end', title:msg, icon, showConfirmButton:false, timer:2000, timerProgressBar:true });
+}
+function popup(title, text, icon='info'){
+  return Swal.fire({ title, text, icon, confirmButtonColor:'#16a34a' });
 }
 
-/* Add product */
-document.getElementById('addProd').addEventListener('click', async ()=>{
-  const name = document.getElementById('prodName').value.trim();
-  const price = Number(document.getElementById('prodPrice').value) || 0;
-  const file = document.getElementById('prodImage').files[0];
-  if(!name || !file){ popup("Missing info","Please provide name and image","warning"); return; }
-  const path = `products/${Date.now()}_${file.name}`;
-  const storageRef = ref(storage, path);
-  try{
-    toast("Uploading image...");
-    await uploadBytes(storageRef, file);
-    const url = await getDownloadURL(storageRef);
-    await addDoc(collection(db,'products'), { name, price, imageURL: url, createdAt: Date.now() });
-    popup("Success","Product added successfully 🌿","success");
-    document.getElementById('prodName').value=''; document.getElementById('prodPrice').value=''; document.getElementById('prodImage').value='';
-  }catch(e){ console.error(e); popup("Upload failed","Please check your Firebase rules or network","error"); }
-});
+/* === Utilities === */
+function resetForm(){
+  prodNameEl.value=''; prodPriceEl.value=''; prodImageEl.value='';
+}
 
-/* Remove product */
-prodList.addEventListener('click', async (e)=>{
-  if(e.target.classList.contains('removeBtn')){
-    const id = e.target.dataset.id;
-    const res = await Swal.fire({title:"Remove this product?",icon:"warning",showCancelButton:true,confirmButtonText:"Yes, remove",cancelButtonText:"Cancel",confirmButtonColor:"#ef4444"});
-    if(res.isConfirmed){
-      try{ await deleteDoc(doc(db,'products',id)); toast("Product removed"); } catch(err){ console.error(err); popup("Failed","Unable to remove product","error"); }
+/* === Real-time products subscription === */
+function renderProductItem(id, p){
+  const row = document.createElement('div');
+  row.className = 'item';
+  row.innerHTML = `
+    <img class="thumb" src="${p.imageURL}" alt="${escapeHtml(p.name)}">
+    <div style="flex:1">
+      <div class="itemTitle">${escapeHtml(p.name)}</div>
+      <div class="small">₦${Number(p.price).toFixed(2)}</div>
+      <div class="small" style="margin-top:6px;color:#5d7b6b">Added: ${ new Date(p.createdAt||Date.now()).toLocaleString() }</div>
+    </div>
+    <div>
+      <button data-id="${id}" class="removeBtn red" style="padding:8px 10px;border-radius:8px;border:0;color:#fff">Remove</button>
+    </div>
+  `;
+  return row;
+}
+
+function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+/* subscribe */
+let unsubscribe = null;
+function subscribeProducts(){
+  // ensure previous listener removed if any
+  if(typeof unsubscribe === 'function') unsubscribe();
+
+  // listen for products collection changes
+  const col = collection(db, 'products');
+  unsubscribe = onSnapshot(col, snap => {
+    prodList.innerHTML = '';
+    if(snap.empty){
+      prodList.innerHTML = '<div class="empty">No products yet.</div>'; return;
     }
+    snap.forEach(docSnap => {
+      const p = docSnap.data();
+      const node = renderProductItem(docSnap.id, p);
+      prodList.appendChild(node);
+    });
+  }, err => {
+    console.error('Product listener failed', err);
+    prodList.innerHTML = '<div class="empty">Unable to load products. Check console.</div>';
+    popup('Error','Failed to load products from Firestore. See console for details.','error');
+  });
+}
+
+/* initial subscribe */
+subscribeProducts();
+
+/* === Add product flow === */
+addProdBtn.addEventListener('click', async () => {
+  const name = prodNameEl.value.trim();
+  const price = Number(prodPriceEl.value) || 0;
+  const file = prodImageEl.files[0];
+
+  if(!name || !file){
+    popup('Missing information','Please provide a product name and an image file.','warning');
+    return;
+  }
+
+  // simple client validation for image size (optional)
+  if(file.size > 5 * 1024 * 1024){
+    popup('File too large','Please choose an image smaller than 5 MB.','warning');
+    return;
+  }
+
+  const path = `products/${Date.now()}_${file.name.replace(/\s+/g,'_')}`;
+  const storageRef = ref(storage, path);
+
+  try{
+    // show uploading toast
+    toast('Uploading image...');
+    // upload
+    await uploadBytes(storageRef, file);
+    // get url
+    const url = await getDownloadURL(storageRef);
+    // add product doc
+    await addDoc(collection(db, 'products'), {
+      name,
+      price,
+      imageURL: url,
+      createdAt: Date.now()
+    });
+
+    popup('Success','Product added successfully 🌿','success');
+    resetForm();
+  }catch(err){
+    console.error('Add product error', err);
+    popup('Upload failed','Could not upload image or save product. Check Firebase rules and network.','error');
   }
 });
 
-/* Upload audio to storage (optional) */
-document.getElementById('uploadAudio').addEventListener('click', async ()=>{
-  const file = document.getElementById('audioFile').files[0];
-  if(!file){ popup("Select file","Please choose an audio file first","warning"); return; }
-  const path = `audio/${Date.now()}_${file.name}`;
-  const storageRef = ref(storage, path);
+/* === Remove product flow (delegated) === */
+prodList.addEventListener('click', async (e) => {
+  const btn = e.target;
+  if(!btn.classList.contains('removeBtn')) return;
+  const id = btn.dataset.id;
+  if(!id) return;
+  const res = await Swal.fire({
+    title: 'Remove this product?',
+    text: 'This will delete the product for all users.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, remove',
+    cancelButtonText: 'Cancel',
+    confirmButtonColor: '#ef4444'
+  });
+  if(!res.isConfirmed) return;
   try{
-    await uploadBytes(storageRef, file);
-    const url = await getDownloadURL(storageRef);
-    popup("Uploaded","Audio uploaded successfully. Use this URL in index.html if you prefer: " + url,"success");
-  }catch(e){ console.error(e); popup("Upload failed","Could not upload audio","error"); }
+    await deleteDoc(doc(db, 'products', id));
+    toast('Product removed');
+  }catch(err){
+    console.error('Remove failed', err);
+    popup('Remove failed','Unable to remove product. See console for details.','error');
+  }
 });
 
-/* Users note and refresh */
-function loadUsers(){ document.getElementById('usersList').innerHTML = '<div style="color:#666">Users are stored locally on each client (localStorage). If you later sync them to Firestore, they will appear here.</div>'; }
-document.getElementById('refreshBtn').addEventListener('click', ()=> { loadProducts(); loadUsers(); });
+/* === UI helpers / controls === */
+refreshBtn.addEventListener('click', () => {
+  subscribeProducts();
+  toast('Refreshed');
+});
+clearFormBtn.addEventListener('click', resetForm);
+docsConsole.addEventListener('click', ()=> {
+  // open Firebase console products collection (helpful shortcut)
+  const projectId = (firebaseConfig && firebaseConfig.projectId) ? firebaseConfig.projectId : '';
+  if(!projectId){ toast('No project ID'); return; }
+  const url = `https://console.firebase.google.com/project/${projectId}/firestore/data/~2Fproducts`;
+  window.open(url, '_blank');
+});
 
-/* init */
-loadProducts(); loadUsers();
+/* end */
 </script>
 </body>
 </html>
