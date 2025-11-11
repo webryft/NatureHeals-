@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — Nature Heals</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Poppins',sans-serif;background:#f3fff6;color:#1c3d2b;padding:40px;line-height:1.7}
+.container{max-width:900px;margin:0 auto;background:white;padding:30px;border-radius:16px;box-shadow:0 6px 20px rgba(0,0,0,0.08)}
+h1{color:#2f855a;text-align:center;margin-top:0;font-weight:800}
+p{margin:18px 0;font-size:16px}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>About Nature Heals 🌿</h1>
+  <div id="aboutText">Loading...</div>
+</div>
+
+<script>
+/* Encrypted (Base64) text — keeps your text hidden in the source */
+const encodedText = `
+VGhlIG5hbWUgTmF0dXJlIEhlYWxzIGVtYm9kaWVzIHRoZSBzcGlyaXQgb2Ygd2hhdCB3ZSBzdGFuZCBmb3IuIEl0IGlzIGEgcmVtaW5kZXIgdGhhdCBldmVyeSBsZWFmLCBmbG93ZXIsIHJpdmVyLCBhbmQgbW91bnRhaW4gaXMgbW9yZSB0aGFuIGp1c3QgcGFydCBvZiB0aGUgc2NlbmVyeSwgYnV0IGFuIGVzc2VudGlhbCBwYXJ0IG9mIG91ciB3ZWxsYmVpbmcuIFdoZW4gd2Ugb3BlbiBvdXIgZWllcyBhbmQgc291bHMsIHdlIHJlYWxpemUgdGhhdCBuYXR1cmUgaXMgbm90IHNpbGVudCBvciBkZXNlcnRlZC4gSXQgaXMgbGl2aW5nLCBicmVhdGhpbmcsIGFuZCBhbHdheXMgY29ubmVjdGVkIHRvIHVzIGluIHN1YmxlIHdheXMgdGhhdCBnbyBiZXlvbmQgd29yZHMuIAoKVGhlIHN1bnJpc2UgYWdhaW5zdCBvdXIgc2tpbiBhbmQgdGhlIHNvZnQgd2hpc3BlcnMgb2YgdGhlIGxlYXZlcyBhcmUgbW9yZSB0aGFuIGp1c3QgYmVhdXR5LCB0aGV5IGFyZSBtZWRpY2luZS4gVGhlIGdyZWVuIG9mIHRoZSBmb3Jlc3QgdHJpZ2dlcnMgcmVsYXhhdGlvbiwgdGhlIHNvdW5kIG9mIHJhaW4gZWFzZXMgdGhlIGhlYXJ0LCBhbmQgdGhlIGxvdyBtdXJtdXIgb2Ygd2F2ZXMgY2FsbXMgdGhlIG1pbmQuIEluIHNvIHZpZXdpbmcsIE5hdHVyZSBIZWFscyB3YXMgYm9ybiBmcm9tIHRoZSBiZWxpZWYgdGhhdCB0cnVlIGhlYWxpbmcgYmVnaW5zIHdoZW4gd2Ugc2ltcGx5IHN0YXkgc3RpbGwsIGxpc3Rlbiwgb3IgbGV0IGdvdC4gCgpOYXQgdXJlIGJvZHkgYW5kIG1pbmQgYXJlIHNlbmNpdGl2ZSBpbnN0cnVtZW50cyBvZiBuYXR1cmUuIFNjaWVudGlzdHMgaGF2ZSBzaG93biB0aGF0IHJlZ3VsYXIgZXhwb3N1cmUgdG8gZ3JlZW4gc3BhY2VzLCB3YWxraW5nIGJlYXJmb290LCBhbmQgb3V0ZG9vciBsaWdodCB0cmlnZ2VycyB0aGUgcmVsZWFzZSBvZiBzZXJvdG9uaW4gYW5kIGVuZG9ycGhpbmVzIHRoZSByZWxlYXNlIG9mIG5hdHVyYWwgaG9ybW9uZXMuIFRoZXJlIGFyZSBtb3JlIHdheXMgdG8gaGVhbCB0aGFuIGFueSBtZWRpY2luZS4gCgpOYXR1cmUgSGVhbHMgaXMgYW4gaW52aXRhdGlvbiB0byByZS1jb25uZWN0IHdpdGggdGhpcyBkZWVwZXIgdHJ1dGguIEl0IHJlbWluZHMgdXMgdGhhdCB3ZSBhcmUgbm90IHNlcGFyYXRlZCBmcm9tIHRoZSB3b3JsZCwgd2UgYXJlIHBhcnQgb2YgaXQuIEV2ZXJ5IHJpdmVyIHRoYXQgc3RpbmVzIGJlbmVhdGggdGhlIHN1biwgdGhlIHJ1c2hpbmcgd2F0ZXJmYWxsLCBhbmQgdGhlIHNvZnQgc2hpbmUgb2YgYmlyZCBzYW5ncyBpcyBhIHNpbGVudCBhZmZpcm1hdGlvbiBvZiBsaWZlIGl0c2VsZi4gSW4gTmF0dXJlIEhlYWxzLCB3ZSBjZWxlYnJhdGUgdGhpcyBiZWxpZWYgYW5kIGJyaW5nIGl0IGJhY2sgdG8gbGlmZS4K
+`;
+
+/* Decode base64 and inject into the page */
+const decodedText = atob(encodedText);
+document.getElementById('aboutText').innerText = decodedText;
+</script>
+</body>
+</html>
