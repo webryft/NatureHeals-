@@ -26,7 +26,22 @@
   .hero img{width:100%;height:100%;object-fit:cover;display:block}
   .heroOverlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px;text-align:center;color:#fff;background:linear-gradient(180deg,rgba(0,0,0,0.15),rgba(0,0,0,0.25))}
   .heroOverlay h1{margin:0;font-size:26px;font-weight:900}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;padding:18px;max-width:1300px;margin:0 auto}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* always 3 columns */
+  gap: 5px;
+  padding: 18px;
+  max-width: 1300px;
+  margin: 0 auto;
+}@media (max-width: 900px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .grid { grid-template-columns: 1fr; }
+}
+
+
+
   .card{background:var(--card);padding:10px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.05);transition:transform .15s}
   .card:hover{transform:translateY(-4px)}
   .card img{width:100%;height:320px;object-fit:cover;border-radius:8px}
@@ -200,25 +215,29 @@
   </div>
 </div>
 
-<script type="module">
-/* Firebase (read-only) */
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+<script>
+/* ========== Local product data (edit here to add/remove items) ==========
+   Put product1.jpg .. product10.jpg in the same folder as this index.html.
+   Each product: { id, name, price, imageURL }
+   - Add more items by copying a line and incrementing image filename (product11.jpg, etc.)
+=============================================================== */
+const PRODUCTS = [
+  { id: 'p1', name: 'Misty Forest', price: 1200, imageURL: 'product1.jpg' },
+  { id: 'p2', name: 'Calm Lake', price: 1500, imageURL: 'product2.jpg' },
+  { id: 'p3', name: 'Sunlit Path', price: 900, imageURL: 'product3.jpg' },
+  { id: 'p4', name: 'Golden Meadow', price: 2000, imageURL: 'product4.jpg' },
+  { id: 'p5', name: 'Rocky Shore', price: 1100, imageURL: 'product5.jpg' },
+  { id: 'p6', name: 'Autumn Trees', price: 1300, imageURL: 'product6.jpg' },
+  { id: 'p7', name: 'Serene Hills', price: 1400, imageURL: 'product7.jpg' },
+  { id: 'p8', name: 'Quiet Stream', price: 1000, imageURL: 'product8.jpg' },
+  { id: 'p9', name: 'Blossom Field', price: 1250, imageURL: 'product9.jpg' },
+  { id: 'p10', name: 'Dawn Mist', price: 1750, imageURL: 'product10.jpg' }
+];
+/* ============================================================= */
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDhnK7DGb9guxUSjkWWH6s7jT7-NU0oBdM",
-  authDomain: "nature-heals-4f4db.firebaseapp.com",
-  projectId: "nature-heals-4f4db",
-  storageBucket: "nature-heals-4f4db.appspot.com",
-  messagingSenderId: "945050051317",
-  appId: "1:945050051317:web:8da40b136b6e6b794c9bbc",
-  measurementId: "G-FYJ6SBDQN7"
-};
+(function(){ /* keep everything in local scope */
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-/* Helpers for popups */
+/* Helpers for popups (SweetAlert2) */
 function showToast(title, icon='success'){ Swal.fire({toast:true,position:'top-end',title,icon,showConfirmButton:false,timer:2200,timerProgressBar:true}); }
 function showPopup(title, text, icon='info'){ Swal.fire({title,text,icon,confirmButtonColor:'#16a34a'}); }
 
@@ -228,6 +247,7 @@ const searchInput = document.getElementById('searchInput');
 const profileImg = document.getElementById('profileImg');
 const cartCountEl = document.getElementById('cartCount');
 
+/* LocalStorage keys */
 const LS_USER = 'NH_USER_v1';
 const LS_CART = 'NH_CART_v1';
 let currentUser = JSON.parse(localStorage.getItem(LS_USER) || 'null');
@@ -240,16 +260,22 @@ function updateCartUI(){ cartCountEl.textContent = cart.length || 0; }
 if(currentUser && currentUser.profilePicDataURL) profileImg.src = currentUser.profilePicDataURL;
 updateCartUI();
 
-/* Render function */
-function renderProducts(products){
+/* safe escape for attributes */
+function escapeHtml(s){ return String(s).replace(/"/g,'&quot;'); }
+
+/* Render products from local PRODUCTS array */
+function renderProducts(items){
   productGrid.innerHTML = '';
-  if(!products.length){ productGrid.innerHTML = '<div style="text-align:center;color:#666;padding:20px;">No products yet 🌱</div>'; return; }
-  products.forEach(p=>{
+  if(!items || items.length === 0){
+    productGrid.innerHTML = '<div style="text-align:center;color:#666;padding:20px;">No products yet 🌱</div>';
+    return;
+  }
+  items.forEach(p=>{
     const el = document.createElement('div');
     el.className = 'card';
     el.innerHTML = `
-      <img src="${p.imageURL}" alt="${p.name}">
-      <h3>${p.name}</h3>
+      <img src="${escapeHtml(p.imageURL)}" alt="${escapeHtml(p.name)}">
+      <h3>${escapeHtml(p.name)}</h3>
       <div class="priceRow">
         <div style="font-weight:800">₦${Number(p.price).toFixed(2)}</div>
         <div style="display:flex;gap:8px">
@@ -261,15 +287,8 @@ function renderProducts(products){
   });
 }
 
-/* safe escape for dataset */
-function escapeHtml(s){ return String(s).replace(/"/g,'&quot;'); }
-
-/* Realtime listener */
-onSnapshot(collection(db,'products'), snap=>{
-  const items = [];
-  snap.forEach(docSnap=> items.push(docSnap.data()));
-  renderProducts(items);
-});
+/* initial render */
+renderProducts(PRODUCTS);
 
 /* Search */
 searchInput.addEventListener('input', ()=> {
@@ -453,8 +472,10 @@ document.querySelectorAll('.overlay').forEach(ov => ov.addEventListener('click',
 const bgAudio = document.getElementById('bgAudio');
 document.body.addEventListener('click', ()=> { if(bgAudio.paused) bgAudio.play().catch(()=>{}); });
 
-/* util popup wrappers (exposed if needed) */
+/* expose helpers */
 window.showToast = showToast; window.showPopup = showPopup;
+
+})(); /* end local scope */
 </script>
 </body>
 </html>
